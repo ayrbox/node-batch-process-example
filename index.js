@@ -7,7 +7,7 @@ const async = require('async');
 
 const dbPool = mysql.createPool({
   host: 'localhost',
-  database: 'batch-test',
+  database: 'batchTestDB',
   user: 'batchuser',
   password: 'batchpassw0rd',
   port: 3306,

@@ -1,0 +1,12 @@
+version: '3.4'
+
+services: 
+  test-db: 
+    image: mariadb:latest
+    ports:
+      - '3396:3306'
+    environment: 
+      MYSQL_ROOT_PASSWORD: batchpassw0rd
+      MYSQL_USER: batchuser
+      MYSQL_PASSWORD: batchpassw0rd
+      MYSQL_DATABASE: batchTestDB
