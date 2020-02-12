@@ -28,38 +28,38 @@ function process(id) {
   }
 }
 
-
-
 function batch(batchSize, parallelLimit) {
   const selectQuery = mysql.format('SELECT * FROM testTable WHERE is_processed=0 limit ?', [batchSize]);
 
   const statusQuery = 'SELECT COUNT(*) AS count FROM testTable WHERE is_processed=1';
   
   return function(cb) {
-    const toDo = [];
+    const processTodo= [];
     dbPool.query(selectQuery, function(err, result) {
       if(err) {
         console.log('Error', err);
         cb(err);
-      } else {
-        for(var i = 0; i < result.length; i++) {
-          toDo.push(process(result[i].id));
-        } 
-
-        async.parallelLimit(toDo, parallelLimit, function(err, result) {
-          if(err) {
-            console.log('Error 2, err');
-            cb(err);
-          } else {
-            dbPool.query(statusQuery, function(err, total) {
-              console.log(total[0].count + ' row processed');
-              cb();
-            });
-          }
-        });
+        return;
       }
-    });
 
+      for(var i = 0; i < result.length; i++) {
+        processTodo.push(process(result[i].id));
+      } 
+      // console.log('Number of process todos : ', processTodo.length);
+
+      async.parallelLimit(processTodo, parallelLimit, function(err, result) {
+        if(err) {
+          console.log('Error 2, err');
+          cb(err);
+        } else {
+          dbPool.query(statusQuery, function(err, total) {
+            console.log(total[0].count + ' row processed');
+            cb();
+          });
+        }
+      });
+
+    });
   }
 }
 
@@ -69,18 +69,17 @@ function batch(batchSize, parallelLimit) {
 function run(batchSize, parallelLimit, total) {
 
   function startBatches(total) {
-    var toDo = [];
+    var batchToDo = [];
     console.log(`${total} rows to process`);
 
     for(var i = 0; i  < total; i+= batchSize) {
-      toDo.push(batch(batchSize, parallelLimit));
+      batchToDo.push(batch(batchSize, parallelLimit));
     }
 
+    // console.log('Batch todo length', batchToDo.length);
 
-    async.series(toDo, function(err, results) {
-
+    async.series(batchToDo, function(err, results) {
       if(err) console.log('Error', err);
-
       dbPool.end();
       console.log(new Date());
     });
