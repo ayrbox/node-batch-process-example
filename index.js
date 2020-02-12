@@ -10,7 +10,7 @@ const dbPool = mysql.createPool({
   database: 'batchTestDB',
   user: 'batchuser',
   password: 'batchpassw0rd',
-  port: 3306,
+  port: 3396,
 });
 
 // Update the record of provided 
@@ -102,4 +102,4 @@ function run(batchSize, parallelLimit, total) {
 }
 
 
-run(1000, 100);
+run(1000, 10);
